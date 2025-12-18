@@ -72,14 +72,30 @@ async function requireProfile(request, reply) {
  * Checks profile.role === 'admin'
  */
 async function requireAdmin(request, reply) {
+  // 1. Ensure profile is loaded
   await requireProfile(request, reply);
   if (reply.sent) return;
 
   const profile = request.profile;
-  if (!profile || (profile.role !== 'admin' && !profile.is_admin)) {
+  const email = profile?.email || 'unknown';
+  const role = profile?.role;
+  const isAdmin = profile?.is_admin;
+
+  // 2. Log Check
+  if (request.log) {
+    request.log.info(`[ADMIN CHECK] email=${email} role=${role} is_admin=${isAdmin}`);
+  } else {
+    console.log(`[ADMIN CHECK] email=${email} role=${role} is_admin=${isAdmin}`);
+  }
+
+  // 3. Verify
+  if (!profile || (role !== 'admin' && isAdmin !== true)) {
+    if (request.log) request.log.warn(`[ADMIN CHECK] DENIED for ${email}`);
     reply.code(403).send({ error: 'Admins only' });
     return;
   }
+
+  if (request.log) request.log.info(`[ADMIN CHECK] ALLOWED for ${email}`);
 }
 
 module.exports = {

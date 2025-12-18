@@ -1,0 +1,7 @@
+# production
+.env
+backend/.env
+frontend/.env.local
+
+.env
+backend/.env
