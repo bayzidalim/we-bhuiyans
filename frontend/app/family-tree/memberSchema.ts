@@ -115,7 +115,7 @@ export function validateMember(
     // ----- Schema validation -----
     const schemaResult = MemberSchema.safeParse(member);
     if (!schemaResult.success) {
-        schemaResult.error.errors.forEach((e) => {
+        schemaResult.error.issues.forEach((e) => {
             errors.push(`${e.path.join('.')} – ${e.message}`);
         });
         return { success: false, errors };
