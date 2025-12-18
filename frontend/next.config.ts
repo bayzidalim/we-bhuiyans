@@ -11,10 +11,12 @@ const nextConfig: NextConfig = {
     ],
   },
   async rewrites() {
+    // Default to localhost for development if env var is missing
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:4000';
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:4000/api/:path*',
+        destination: `${backendUrl}/api/:path*`,
       },
     ];
   },
