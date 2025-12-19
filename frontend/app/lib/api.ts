@@ -1,10 +1,16 @@
 import { supabase } from './supabaseClient';
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  'http://localhost:4000/api';
+const getBaseUrl = () => {
+    // 1. Get the raw URL from env or default to localhost
+    const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+    // 2. Ensure it DOES NOT end with /api (we append that later)
+    return url.replace(/\/api\/?$/, '');
+};
 
-console.log('[API BASE]', API_BASE);
+const BASE_URL = getBaseUrl();
+const API_BASE = `${BASE_URL}/api`;
+
+console.log('[API CONFIG] BASE:', BASE_URL, 'API:', API_BASE);
 
 
 /**

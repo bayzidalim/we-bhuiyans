@@ -45,8 +45,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const fetchProfile = async (session: Session) => {
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-            const res = await fetch(`${apiUrl}/api/auth/me`, {
+            const rawUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+            const baseUrl = rawUrl.replace(/\/api\/?$/, ''); // Remove /api if present
+            
+            console.log('[AuthContext] Fetching Profile from:', `${baseUrl}/api/auth/me`);
+            const res = await fetch(`${baseUrl}/api/auth/me`, {
                 headers: {
                     'Authorization': `Bearer ${session.access_token}`
                 }
