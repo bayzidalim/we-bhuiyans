@@ -10,6 +10,7 @@ export default function AdminTimelineManager({ memberId }: { memberId: string })
     const [loading, setLoading] = useState(true);
     const [content, setContent] = useState('');
     const [mediaUrls, setMediaUrls] = useState<string[]>([]);
+    const [postType, setPostType] = useState<'update' | 'memory' | 'announcement'>('update');
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
@@ -50,15 +51,37 @@ export default function AdminTimelineManager({ memberId }: { memberId: string })
         }
     };
 
+    // Load draft from local storage
+    useEffect(() => {
+        const savedDraft = localStorage.getItem(`post_draft_${memberId}`);
+        if (savedDraft) {
+            try {
+                const { content: savedContent, postType: savedType } = JSON.parse(savedDraft);
+                if (savedContent) setContent(savedContent);
+                if (savedType) setPostType(savedType);
+            } catch (e) {
+                console.error("Failed to parse draft", e);
+            }
+        }
+    }, [memberId]);
+
+    // Save draft to local storage
+    useEffect(() => {
+        const draft = JSON.stringify({ content, postType });
+        localStorage.setItem(`post_draft_${memberId}`, draft);
+    }, [content, postType, memberId]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!content && mediaUrls.length === 0) return;
         
         setSaving(true);
         try {
-            await createMemberPost(memberId, { content, media_urls: mediaUrls });
+            await createMemberPost(memberId, { content, media_urls: mediaUrls, post_type: postType });
             setContent('');
             setMediaUrls([]);
+            setPostType('update');
+            localStorage.removeItem(`post_draft_${memberId}`); // Clear draft
             loadPosts();
         } catch (err) {
             console.error('Failed to create post:', err);
@@ -66,6 +89,8 @@ export default function AdminTimelineManager({ memberId }: { memberId: string })
             setSaving(false);
         }
     };
+
+    // ... (rest of the functions)
 
     const handleDelete = async (postId: string) => {
         if (!confirm('Are you sure you want to delete this post?')) return;
@@ -83,14 +108,45 @@ export default function AdminTimelineManager({ memberId }: { memberId: string })
         <div className="space-y-12">
             {/* Create Post Form */}
             <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-8 border border-gray-100 shadow-xl shadow-gray-200/40 space-y-6">
+                
+                {/* Type Selection */}
+                <div className="flex gap-4">
+                    {(['update', 'memory', 'announcement'] as const).map(type => (
+                        <label key={type} className="flex items-center cursor-pointer">
+                            <input
+                                type="radio"
+                                name="postType"
+                                value={type}
+                                checked={postType === type}
+                                onChange={(e) => setPostType(e.target.value as any)}
+                                className="sr-only peer"
+                            />
+                            <div className="px-4 py-2 rounded-full border border-gray-200 text-sm font-semibold capitalize text-gray-500 peer-checked:bg-indigo-50 peer-checked:text-indigo-600 peer-checked:border-indigo-200 transition-all">
+                                {type}
+                            </div>
+                        </label>
+                    ))}
+                </div>
+
                 <div>
-                    <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] mb-4">Add Timeline Post</h3>
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em]">Add Timeline Post</h3>
+                        <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium bg-emerald-50 px-3 py-1 rounded-full">
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                            This is shared only within the family.
+                        </div>
+                    </div>
                     <textarea
                         className="w-full h-32 px-5 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all outline-none resize-none text-gray-700 font-medium leading-relaxed"
                         placeholder="What's new with this family member?"
                         value={content}
                         onChange={e => setContent(e.target.value)}
                     />
+                     <p className="mt-2 text-xs text-gray-400 font-medium text-right">
+                        You can edit or delete this later.
+                    </p>
                 </div>
                 
                 {/* Media Preview */}
@@ -144,7 +200,7 @@ export default function AdminTimelineManager({ memberId }: { memberId: string })
             {/* Post List */}
             <div className="space-y-6">
                 <div className="flex items-center justify-between px-2">
-                    <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em]">Timeline Feed</h3>
+                    <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em]">Timeline Entries</h3>
                     <span className="text-xs text-gray-400 font-bold uppercase tracking-widest">{posts.length} Posts</span>
                 </div>
                 
@@ -157,15 +213,24 @@ export default function AdminTimelineManager({ memberId }: { memberId: string })
                         {posts.map(post => (
                             <div key={post.id} className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all flex items-start gap-4 group">
                                 <div className="flex-1">
-                                    <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em] mb-3">
-                                        {new Date(post.created_at).toLocaleString(undefined, {
-                                            year: 'numeric',
-                                            month: 'short',
-                                            day: 'numeric',
-                                            hour: '2-digit',
-                                            minute: '2-digit'
-                                        })}
-                                    </p>
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+                                            {new Date(post.created_at).toLocaleString(undefined, {
+                                                year: 'numeric',
+                                                month: 'short',
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
+                                        </span>
+                                        <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider ${
+                                            post.post_type === 'memory' ? 'bg-amber-100 text-amber-700' :
+                                            post.post_type === 'announcement' ? 'bg-purple-100 text-purple-700' :
+                                            'bg-gray-100 text-gray-600'
+                                        }`}>
+                                            {post.post_type || 'Update'}
+                                        </span>
+                                    </div>
                                     {post.content && <p className="text-gray-700 mb-4 font-medium leading-relaxed">{post.content}</p>}
                                     {post.media_urls?.length > 0 && (
                                         <div className="flex flex-wrap gap-2">

@@ -9,7 +9,8 @@ export interface MemberProfile {
   id: string;
   auth_user_id: string;
   email: string;
-  name: string; // From API contract
+  display_name: string; // Standardized
+  name: string; // API contract
   full_name: string; // Legacy/DB
   avatar_url?: string | null; // From API contract
   role: 'admin' | 'member' | 'guest';

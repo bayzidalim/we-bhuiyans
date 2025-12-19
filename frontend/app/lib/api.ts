@@ -24,6 +24,15 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
     });
 
     if (!response.ok) {
+        if (response.status === 401) {
+            console.warn('Authentication invalid. Signing out...');
+            await supabase.auth.signOut();
+            // Optional: Redirect to login if client-side
+            if (typeof window !== 'undefined') {
+                window.location.href = '/auth';
+            }
+        }
+
         const text = await response.text();
         console.error('API ERROR:', endpoint, text);
         throw new Error(text || `API Error: ${response.status}`);

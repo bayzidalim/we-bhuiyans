@@ -62,6 +62,7 @@ async function feedRoutes(fastify, options) {
               'member_id', mp.platform_member_id,
               'member_name', pm.full_name,
               'content', LEFT(mp.content, 200),
+              'post_type', mp.post_type,
               'media_count', jsonb_array_length(COALESCE(mp.media_urls, '[]'::jsonb))
             ) as data
           FROM member_posts mp

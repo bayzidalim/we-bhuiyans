@@ -14,6 +14,7 @@ interface Post {
     created_at: string;
     reaction_like: number;
     reaction_respect: number;
+    post_type?: 'update' | 'memory' | 'announcement';
 }
 
 interface Comment {
@@ -113,14 +114,14 @@ export default function MemberTimeline({ memberId }: { memberId: string }) {
 
     if (posts.length === 0) {
         return (
-            <div className="bg-white rounded-3xl p-16 text-center border border-gray-100 shadow-sm">
-                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
-                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="bg-white rounded-lg p-12 text-center border border-gray-200">
+                <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                     </svg>
                 </div>
-                <h3 className="text-gray-900 font-bold mb-1">No timeline posts</h3>
-                <p className="text-gray-400 text-sm font-medium">This member hasn't shared any updates yet.</p>
+                <h3 className="text-gray-900 font-serif font-medium mb-1">No updates</h3>
+                <p className="text-gray-500 text-sm">This family member hasn't shared any updates yet.</p>
             </div>
         );
     }
@@ -129,72 +130,60 @@ export default function MemberTimeline({ memberId }: { memberId: string }) {
         <div className="space-y-8">
             <div className="space-y-8">
                 {posts.map(post => (
-                    <article key={post.id} className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:shadow-gray-200/40 transition-all duration-500">
+                    <article key={post.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
                         <div className="p-8">
                             {/* Meta */}
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
-                                <time className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">
+                                <div className="w-1.5 h-1.5 rounded-full bg-gray-300"></div>
+                                <time className="text-xs font-medium text-gray-500 uppercase tracking-widest">
                                     {new Date(post.created_at).toLocaleDateString(undefined, { 
                                         year: 'numeric', 
                                         month: 'long', 
                                         day: 'numeric' 
                                     })}
                                 </time>
+                                <span className={`ml-2 px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider border ${
+                                    post.post_type === 'memory' ? 'bg-amber-50 text-amber-700 border-amber-100' :
+                                    post.post_type === 'announcement' ? 'bg-purple-50 text-purple-700 border-purple-100' :
+                                    'bg-gray-50 text-gray-600 border-gray-100'
+                                }`}>
+                                    {post.post_type || 'Update'}
+                                </span>
                             </div>
                             
                             {/* Content */}
                             {post.content && (
-                                <div className="text-xl text-gray-700 leading-relaxed whitespace-pre-wrap mb-8 font-medium">
+                                <div className="text-lg text-gray-800 leading-relaxed whitespace-pre-wrap mb-6 font-serif">
                                     {post.content}
                                 </div>
                             )}
 
                             {/* Media Grid */}
                             {post.media_urls && post.media_urls.length > 0 && (
-                                <div className={`grid gap-3 mb-8 ${
+                                <div className={`grid gap-2 mb-6 ${
                                     post.media_urls.length === 1 ? 'grid-cols-1' : 
                                     post.media_urls.length === 2 ? 'grid-cols-2' : 
                                     'grid-cols-2 md:grid-cols-3'
                                 }`}>
                                     {post.media_urls.map((url, idx) => (
-                                        <div key={idx} className="relative aspect-square rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 group cursor-zoom-in">
+                                        <div key={idx} className="relative aspect-square bg-gray-50 border border-gray-100">
                                             <Image 
                                                 src={url} 
                                                 alt="Post media" 
                                                 fill 
-                                                className="object-cover group-hover:scale-105 transition-transform duration-700"
+                                                className="object-cover"
                                             />
-                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                                         </div>
                                     ))}
                                 </div>
                             )}
 
-                            {/* Reactions */}
-                            <div className="flex items-center gap-2 pt-6 border-t border-gray-50">
-                                <button
-                                    onClick={() => handleReact(post.id, 'like')}
-                                    className="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-red-50 text-gray-500 hover:text-red-500 rounded-full transition-all group/rxn"
-                                >
-                                    <span className="text-lg group-hover/rxn:scale-125 transition-transform">❤️</span>
-                                    {post.reaction_like > 0 && (
-                                        <span className="text-sm font-bold">{post.reaction_like}</span>
-                                    )}
-                                </button>
-                                <button
-                                    onClick={() => handleReact(post.id, 'respect')}
-                                    className="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-blue-50 text-gray-500 hover:text-blue-600 rounded-full transition-all group/rxn"
-                                >
-                                    <span className="text-lg group-hover/rxn:scale-125 transition-transform">🫡</span>
-                                    {post.reaction_respect > 0 && (
-                                        <span className="text-sm font-bold">{post.reaction_respect}</span>
-                                    )}
-                                </button>
-                            </div>
+                            {/* Reactions Removed for Calm/Archival Tone */}
 
                             {/* Comments Section */}
-                            <PostComments postId={post.id} />
+                            <div className="pt-6 border-t border-gray-100">
+                                <PostComments postId={post.id} />
+                            </div>
                         </div>
                     </article>
                 ))}
@@ -206,16 +195,9 @@ export default function MemberTimeline({ memberId }: { memberId: string }) {
                     <button
                         onClick={() => loadPosts()}
                         disabled={loadingMore}
-                        className="px-10 py-4 bg-white border border-gray-200 text-gray-900 font-bold rounded-2xl hover:bg-gray-50 transition-all shadow-sm disabled:opacity-50 flex items-center gap-3 uppercase tracking-widest text-xs"
+                        className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-medium text-sm rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 flex items-center gap-2"
                     >
-                        {loadingMore ? (
-                            <>
-                                <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                                <span>Loading More...</span>
-                            </>
-                        ) : (
-                            <span>Load Older Updates</span>
-                        )}
+                        {loadingMore ? 'Loading updates...' : 'Load previous entries'}
                     </button>
                 </div>
             )}

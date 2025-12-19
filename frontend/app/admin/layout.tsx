@@ -16,8 +16,8 @@ export default function AdminLayout({
 
   const navItems = [
     { name: 'Dashboard', href: '/admin' },
-    { name: 'Tree People', href: '/admin/members' },
-    { name: 'Social Members', href: '/admin/platform-members' },
+    { name: 'People (Tree)', href: '/admin/members' },
+    { name: 'People (Social)', href: '/admin/platform-members' },
     { name: 'Media', href: '/admin/media' },
     { name: 'Family Tree', href: '/admin/family-tree' },
     { name: 'Settings', href: '/admin/settings' },

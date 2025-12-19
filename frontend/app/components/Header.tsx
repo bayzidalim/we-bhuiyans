@@ -11,7 +11,7 @@ export default function Header() {
 
   // Derive display name
   // profile.name is from new API contract
-  const displayName = profile?.name || profile?.full_name || user?.user_metadata?.full_name || 'Member';
+  const displayName = profile?.display_name || profile?.name || profile?.full_name || user?.user_metadata?.full_name || 'Member';
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || null;
 
   return (
@@ -59,7 +59,7 @@ export default function Header() {
                                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                                 onClick={() => setMenuOpen(false)}
                             >
-                                Admin Dashboard
+                                Manage
                             </Link>
                         )}
                         
@@ -68,7 +68,7 @@ export default function Header() {
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                             onClick={() => setMenuOpen(false)}
                         >
-                            My Profile
+                            My Info
                         </Link>
                         
                         <button

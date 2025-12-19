@@ -451,21 +451,22 @@ async function adminRoutes(fastify, options) {
   // Create a new post for a platform member
   fastify.post('/profile/:platformMemberId/posts', async (request, reply) => {
     const { platformMemberId } = request.params;
-    const { content, media_urls } = request.body;
+    const { content, media_urls, post_type } = request.body;
     const created_by = request.user.id;
 
     const client = await pool.connect();
     try {
       const query = `
-        INSERT INTO member_posts (platform_member_id, content, media_urls, created_by)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO member_posts (platform_member_id, content, media_urls, created_by, post_type)
+        VALUES ($1, $2, $3, $4, $5)
         RETURNING *
       `;
       const { rows } = await client.query(query, [
         platformMemberId, 
         content || null, 
         media_urls || [], 
-        created_by
+        created_by,
+        post_type || 'update'
       ]);
 
       return rows[0];
