@@ -1,7 +1,11 @@
 import { supabase } from './supabaseClient';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
-console.log('API_BASE', API_BASE);
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL ??
+  'http://localhost:4000/api';
+
+console.log('[API BASE]', API_BASE);
+
 
 /**
  * Helper to fetch data from the Admin API.
