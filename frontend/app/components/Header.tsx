@@ -47,39 +47,78 @@ export default function Header() {
                   
                   {/* Dropdown Menu */}
                   {menuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-100 ring-1 ring-black ring-opacity-5 animate-scale-in origin-top-right">
-                        <div className="px-4 py-2 border-b border-gray-50">
-                            <p className="text-sm text-gray-900 font-medium truncate">{displayName}</p>
-                            <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl py-2 border border-gray-100 ring-1 ring-black ring-opacity-5 animate-scale-in origin-top-right overflow-hidden">
+                        {/* Identity Block */}
+                        <div className="px-5 py-4 border-b border-gray-50 bg-gray-50/30">
+                            <p className="text-base font-bold text-gray-900 truncate tracking-tight">{displayName}</p>
+                            <p className="text-sm text-gray-500 truncate mb-1">{user.email}</p>
+                            <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                                {(profile?.role === 'admin' || profile?.is_admin) ? 'Family archivist' : 'Family member'}
+                            </span>
                         </div>
                         
-                        {(profile?.role === 'admin' || profile?.is_admin) && (
+                        <div className="py-2">
+                            {/* Primary Actions */}
                             <Link 
-                                href="/admin" 
-                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                                href={profile?.id ? `/profile/${profile.id}` : '#'} 
+                                className={`block px-5 py-3 transition-colors group ${!profile?.id ? 'opacity-50 pointer-events-none' : 'hover:bg-gray-50'}`}
                                 onClick={() => setMenuOpen(false)}
                             >
-                                Manage
+                                <div className="text-sm font-medium text-gray-900 group-hover:text-indigo-900">My Profile</div>
+                                <div className="text-xs text-gray-500 mt-0.5 hidden sm:block">
+                                    {(profile?.role === 'admin' || profile?.is_admin) ? 'Your personal information' : 'Your personal information and activity'}
+                                </div>
                             </Link>
-                        )}
-                        
-                        <Link 
-                            href={`/profile/${profile?.id}`} // Using platform ID
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            My Info
-                        </Link>
-                        
-                        <button
-                            onClick={() => {
-                                setMenuOpen(false);
-                                signOut();
-                            }}
-                            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                        >
-                            Sign Out
-                        </button>
+
+                            <Link 
+                                href={profile?.id ? `/profile/${profile.id}` : '#'} 
+                                className={`block px-5 py-3 transition-colors group ${!profile?.id ? 'opacity-50 pointer-events-none' : 'hover:bg-gray-50'}`}
+                                onClick={() => setMenuOpen(false)}
+                            >
+                                <div className="text-sm font-medium text-gray-900 group-hover:text-indigo-900">My Contributions</div>
+                                <div className="text-xs text-gray-500 mt-0.5 hidden sm:block">Stories and memories you’ve shared</div>
+                            </Link>
+
+                            {/* Admin Section */}
+                            {(profile?.role === 'admin' || profile?.is_admin) && (
+                                <>
+                                    <div className="my-2 border-t border-gray-100 mx-5"></div>
+                                    <div className="bg-gray-50/50 -mx-0 px-0 py-1">
+                                        <div className="px-5 py-1 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                            Admin
+                                        </div>
+                                        <Link 
+                                            href="/admin" 
+                                            className="block px-5 py-3 hover:bg-white hover:shadow-sm transition-all group"
+                                            onClick={() => setMenuOpen(false)}
+                                        >
+                                            <div className="text-sm font-medium text-gray-900 group-hover:text-indigo-900">Manage Family Archive</div>
+                                            <div className="text-xs text-gray-500 mt-0.5 hidden sm:block">Members, stories, media, and moderation</div>
+                                        </Link>
+                                        <Link 
+                                            href="/admin" 
+                                            className="block px-5 py-3 hover:bg-white hover:shadow-sm transition-all group"
+                                            onClick={() => setMenuOpen(false)}
+                                        >
+                                            <div className="text-sm font-medium text-gray-900 group-hover:text-indigo-900">Notifications</div>
+                                            <div className="text-xs text-gray-500 mt-0.5 hidden sm:block">Pending reviews and updates</div>
+                                        </Link>
+                                    </div>
+                                </>
+                            )}
+
+                            <div className="my-1 border-t border-gray-100 mx-5"></div>
+                            
+                            <button
+                                onClick={() => {
+                                    setMenuOpen(false);
+                                    signOut();
+                                }}
+                                className="block w-full text-left px-5 py-3 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                            >
+                                Sign out
+                            </button>
+                        </div>
                     </div>
                   )}
 

@@ -27,9 +27,11 @@ async function requireAuth(request, reply) {
       return;
     }
 
+    // Verify token with Supabase
     const { data, error } = await supabase.auth.getUser(token);
+    
     if (error || !data?.user) {
-      request.log.error(`Auth failed for token: ${error?.message || 'No user found'}`);
+      if (request.log) request.log.error(`Auth failed for token: ${error?.message || 'No user found'}`);
       reply.code(401).send({ error: 'Invalid or expired token', details: error?.message });
       return;
     }
@@ -37,7 +39,7 @@ async function requireAuth(request, reply) {
     request.user = data.user;
     return;
   } catch (err) {
-    request.log.error('Auth check error:', err);
+    if (request.log) request.log.error('Auth check error:', err);
     reply.code(500).send({ error: 'Authentication failed' });
     return;
   }

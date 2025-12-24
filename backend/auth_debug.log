@@ -1,0 +1,3 @@
+[2025-12-19T15:02:31.667Z] Auth Failed. Token: testtoken... Error: invalid JWT: unable to parse or verify signature, token is malformed: token contains an invalid number of segments
+[2025-12-19T15:02:37.985Z] Auth Failed. Token: eyJhbGciOi... Error: Auth session missing!
+[2025-12-19T15:02:50.125Z] Auth Failed. Token: eyJhbGciOi... Error: Auth session missing!
